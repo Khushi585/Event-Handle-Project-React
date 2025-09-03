@@ -1,34 +1,68 @@
-import { useForm } from "react-hook-form";
+import { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 function EventRegistrationForm() {
-    const {
-        register,
-        handleSubmit,
-        reset,
-        formState: { errors },
-    } = useForm();
+    const [formData, setFormData] = useState({
+        fullName: "",
+        email: "",
+        event: "",
+        ticket: "",
+        date: "",
+    });
 
-    const onSubmit = (data) => {
-        console.log("Submitted Data:", data);
-        reset();
+    const [submittedData, setSubmittedData] = useState(null);
+
+    // Single input handler
+    const handleChange = (e) => {
+        const { name, value, type, checked } = e.target;
+
+        if (type === "checkbox") {
+            // (Not used here, but kept for logic consistency if later needed)
+            setFormData((prev) => ({
+                ...prev,
+                [name]: checked ? [...prev[name], value] : prev[name].filter((v) => v !== value),
+            }));
+        } else {
+            setFormData((prev) => ({
+                ...prev,
+                [name]: value,
+            }));
+        }
+    };
+
+    // Submit handler
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        console.log("Submitted Data:", formData);
+
+        setSubmittedData(formData);
+
+        // Reset
+        setFormData({
+            fullName: "",
+            email: "",
+            event: "",
+            ticket: "",
+            date: "",
+        });
     };
 
     return (
         <div className="container mt-5">
             <div className="card shadow p-4 bg-dark text-light">
                 <h3 className="text-center text-info mb-4">🎉 Event Registration Form</h3>
-                <form onSubmit={handleSubmit(onSubmit)}>
 
+                <form onSubmit={handleSubmit}>
                     {/* Name */}
                     <div className="mb-3">
                         <label className="form-label fw-bold">Full Name</label>
                         <input
                             type="text"
-                            {...register("name", { required: "Full Name is required" })}
+                            name="fullName"
+                            value={formData.fullName}
+                            onChange={handleChange}
                             className="form-control"
                         />
-                        <p className="text-danger">{errors.name?.message}</p>
                     </div>
 
                     {/* Email */}
@@ -36,18 +70,21 @@ function EventRegistrationForm() {
                         <label className="form-label fw-bold">Email Address</label>
                         <input
                             type="email"
-                            {...register("email", { required: "Email is required" })}
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
                             className="form-control"
                         />
-                        <p className="text-danger">{errors.email?.message}</p>
                     </div>
 
                     {/* Event Selection */}
                     <div className="mb-3">
                         <label className="form-label fw-bold">Select Event</label>
                         <select
+                            name="event"
+                            value={formData.event}
+                            onChange={handleChange}
                             className="form-select"
-                            {...register("event", { required: "Please select an event" })}
                         >
                             <option value="">-- Choose Event --</option>
                             <option value="Workshop">Workshop</option>
@@ -55,7 +92,6 @@ function EventRegistrationForm() {
                             <option value="Hackathon">Hackathon</option>
                             <option value="Music Night">Music Night</option>
                         </select>
-                        <p className="text-danger">{errors.event?.message}</p>
                     </div>
 
                     {/* Ticket Type */}
@@ -64,8 +100,10 @@ function EventRegistrationForm() {
                         <div className="form-check form-check-inline">
                             <input
                                 type="radio"
+                                name="ticket"
                                 value="Standard"
-                                {...register("ticket", { required: "Select a ticket type" })}
+                                checked={formData.ticket === "Standard"}
+                                onChange={handleChange}
                                 className="form-check-input"
                             />
                             <label className="form-check-label">Standard</label>
@@ -73,13 +111,14 @@ function EventRegistrationForm() {
                         <div className="form-check form-check-inline">
                             <input
                                 type="radio"
+                                name="ticket"
                                 value="VIP"
-                                {...register("ticket", { required: "Select a ticket type" })}
+                                checked={formData.ticket === "VIP"}
+                                onChange={handleChange}
                                 className="form-check-input"
                             />
                             <label className="form-check-label">VIP</label>
                         </div>
-                        <p className="text-danger">{errors.ticket?.message}</p>
                     </div>
 
                     {/* Date */}
@@ -87,10 +126,11 @@ function EventRegistrationForm() {
                         <label className="form-label fw-bold">Preferred Date</label>
                         <input
                             type="date"
-                            {...register("date", { required: "Date is required" })}
+                            name="date"
+                            value={formData.date}
+                            onChange={handleChange}
                             className="form-control"
                         />
-                        <p className="text-danger">{errors.date?.message}</p>
                     </div>
 
                     {/* Submit */}
@@ -101,6 +141,18 @@ function EventRegistrationForm() {
                     </div>
                 </form>
             </div>
+
+            {/* Submitted Data */}
+            {submittedData && (
+                <div className="card shadow p-4 mt-4">
+                    <h4 className="text-success">Submitted Registration</h4>
+                    <p><b>Full Name:</b> {submittedData.fullName}</p>
+                    <p><b>Email:</b> {submittedData.email}</p>
+                    <p><b>Event:</b> {submittedData.event}</p>
+                    <p><b>Ticket Type:</b> {submittedData.ticket}</p>
+                    <p><b>Date:</b> {submittedData.date}</p>
+                </div>
+            )}
         </div>
     );
 }
